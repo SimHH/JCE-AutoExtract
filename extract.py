@@ -264,7 +264,7 @@ def download_File(path: str) -> bytes:
     # print(path)
     # return b"success Download"
 
-    targetUrl_GET = "https://www.officedepot.co.kr/common/file/download.do"
+    targetUrl_GET = ""
     targetUrl_POST = ""
 
     if targetUrl_GET:
@@ -407,9 +407,9 @@ def extract_class(decompile_class: str) -> list[str]:
 
 # if you want POST method "targetUrl_GET = ''"
 def download_classes(classPath_list: list[str]):
-    targetUrl_GET = "https://www.officedepot.co.kr/common/file/download.do"
+    targetUrl_GET = ""
     targetUrl_POST = ""
-    WEBROOT = "/storage/webroot/officedepot/htdocs/WEB-INF/classes/"
+    WEBROOT = "WEBROOT/classes/"
     if targetUrl_GET:
         for classPath in classPath_list:
             
@@ -420,7 +420,7 @@ def download_classes(classPath_list: list[str]):
             
             # Customize Data
             params = {
-                "url": "file:///" + WEBROOT + classPath,
+                "url": WEBROOT + classPath,
             }
 
 
