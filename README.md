@@ -1,21 +1,34 @@
-# 🔧 Java Class Extractor & Decompiler Tool
+# 🔧 JCE-AutoExtract Tool
 
-This is a tool that automatically extracts system file and decompiles java class configuration files for Java projects.  
-It operates on web applications with file download vulnerabilities.
+추출된 Passwd 파일 및 .class 파일을 기반으로 시스템 파일 및 Java 프로젝트의 구성 및 클래스 파일을 추출하고 디컴파일합니다.  
+파일 다운로드 취약점이 있는 웹 애플리케이션에서 작동합니다.
+
+#
+
+Extracts and decompiles system files and Java project configuration and class files based on extracted Passwd files and .class files.  
+Operates on web applications with file download vulnerabilities.
 
 ---
 
 ## 📋 Requirement
-1. File download vulnerability targetURL (LFI or Path Traversal) of the target web application.  
-2. Secure the path to at least one .class file.  
-3. Web root (WEB-INF/classes) absolute path information.  
+
+- 대상 웹 애플리케이션의 파일 다운로드 취약점 URL(targetURL, LFI 또는 경로 탐색)
+
+- 추출된 passwd 파일 또는 .class 파일  
+
+#
+
+- URL of the target web application's file download vulnerability (targetURL, LFI, or path traversal)
+
+- passwd file or .class file
 
 ---
 
 ## 📁 Struct
 - extract.py &nbsp;&nbsp;&nbsp;&nbsp;# Script
 - cfr-0.154.jar &nbsp;&nbsp;&nbsp;&nbsp;# class Decompiler
-- passwd &nbsp;&nbsp;&nbsp;&nbsp;# Example
+- dictionary.py &nbsp;&nbsp;&nbsp;&nbsp;# path dictionary
+- passwd &nbsp;&nbsp;&nbsp;&nbsp;# Example 
 
 ---
 
@@ -48,5 +61,10 @@ public class Main {
 }
 ```
 
+**패키지 이름을 사용하여 디렉토리 생성**  
+**import 경로를 통한 클래스 체이닝 다운로드**
+
 **Creating a directory using the package name**  
 **Downloading chaining classes via import path**
+
+---
