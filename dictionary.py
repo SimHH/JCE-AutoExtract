@@ -167,10 +167,13 @@ targets = ( "cat ", "vi ", "vim ", "nano ", "touch ", )
 
 webTarget = ["WEB-INF", "web-inf", "webroot", "WebRoot", "webroots", "WebRoots", "WEB-INF/web.xml", "WEB-INF/classes", "application.properties", "application.yml", "application.yaml", "system.xml", "jdbc.xml", "web.xml", "Web.config", "Web.Config", "php.ini", "bootstrap.properties", "bootstrap.yml", "database.properties", "jdbc.properties", "config.properties", "configuration.properties", "root-context.xml", "server.xml", "context.xml", "tomcat-users.xml", "context-database.xml", "context-property.xml", "servlet-context.xml", "context-security.xml", "context-exception.xml", "JeusServer.log", "jeus8", "security.properties", "domain.xml", "bxm-application.xml", "com/"]
 
-file_extensions = (
-        'log', 'xml', 'class', 'properties', 'yml', 'yaml', 
-        'conf', 'config', 'jsp', 'php', 'html', 'htm', 
-        'js', 'css', 'txt', 'json', 'sql', 'db', 'bak', 
-        'war', 'jar', 'sh', 'py', 'rb', 'java', 'cpp', 'c', 'h',
-        'md', 'pdf', 'doc', 'docx', 'xls', 'xlsx'
-    )
+file_extensions = ["xml", "properties", "property", "conf", "config", "class", "log", "logback", "yaml", "yml", "sh", ]
+
+# file_extensions = (
+#         'log', 'xml', 'class', 'properties', 'yml', 'yaml', 
+#         'conf', 'config', 'jsp', 'php', 'html', 'htm', 
+#         'js', 'css', 'txt', 'json', 'sql', 'db', 'bak', 
+#         'war', 'jar', 'sh', 'py', 'rb', 'java', 'cpp', 'c', 'h',
+#         'md', 'pdf', 'doc', 'docx', 'xls', 'xlsx'
+#     )
+
